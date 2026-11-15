@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Nonstop" />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <title>Nonstop – Partyspiel</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.35);
+      --danger: #f43f5e;
+      --adult: #ec4899;
+      --success: #10b981;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-x: hidden;
+    }
+
+    /* Header & Controls */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      gap: 8px;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .icon-btn.active-adult {
+      background: rgba(236, 72, 153, 0.2);
+      border-color: var(--adult);
+      color: #f9a8d4;
+    }
+
+    /* Main Arena */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      text-align: center;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+    }
+
+    .badge.adult {
+      background: rgba(236, 72, 153, 0.2);
+      color: #f472b6;
+    }
+
+    .category-box {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 28px 20px;
+      width: 100%;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .category-box.pulse {
+      transform: scale(1.02);
+      border-color: var(--accent);
+    }
+
+    .category-text {
+      font-size: 1.65rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    /* Timer Circle */
+    .timer-wrapper {
+      position: relative;
+      width: 190px;
+      height: 190px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg.progress-ring {
+      transform: rotate(-90deg);
+      width: 190px;
+      height: 190px;
+    }
+
+    .progress-ring__bg {
+      fill: transparent;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 12;
+    }
+
+    .progress-ring__circle {
+      fill: transparent;
+      stroke: var(--accent);
+      stroke-width: 12;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+    }
+
+    .timer-display {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .timer-seconds {
+      font-size: 3.4rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .timer-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Primary Action Button */
+    .controls {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 12px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 20px;
+      border-radius: 20px;
+      border: none;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #0f172a;
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px var(--accent-glow);
+      transition: transform 0.1s ease;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary.running {
+      background: linear-gradient(135deg, #10b981, #34d399);
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
+    }
+
+    .sub-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--card);
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Settings Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: #1e293b;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 28px 28px 0 0;
+      padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) 20px;
+      max-height: 85dvh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .modal h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .setting-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .setting-group label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: #0f172a;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .row-input {
+      display: flex;
+      gap: 8px;
+    }
+
+    .stats {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .shake {
+      animation: shake 0.4s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">NONSTOP</div>
+    <div class="top-actions">
+      <button id="adultToggleBtn" class="icon-btn" onclick="cycleMode()">Modus: Standard</button>
+      <button class="icon-btn" onclick="openSettings()">⚙️ Setup</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="categoryBadge" class="badge">Bereit zum Start</div>
+
+    <div id="categoryBox" class="category-box">
+      <p id="categoryText" class="category-text">Tippe auf „Nächste Runde“, um zu starten!</p>
+    </div>
+
+    <div class="timer-wrapper">
+      <svg class="progress-ring">
+        <circle class="progress-ring__bg" r="82" cx="95" cy="95" />
+        <circle id="progressCircle" class="progress-ring__circle" r="82" cx="95" cy="95" />
+      </svg>
+      <div class="timer-display">
+        <span id="timerSeconds" class="timer-seconds">10.0</span>
+        <span id="timerStatus" class="timer-label">Sekunden</span>
+      </div>
+    </div>
+
+    <div class="stats" id="poolStats">Pool: 125 Kategorien</div>
+  </main>
+
+  <div class="controls">
+    <button id="mainBtn" class="btn-primary" onclick="nextRound()">▶ Nächste Runde</button>
+    <div class="sub-controls">
+      <button class="btn-secondary" onclick="repeatSpeech()">🔊 Nochmal vorlesen</button>
+      <button class="btn-secondary" onclick="stopTimer()">⏹ Stopp</button>
+    </div>
+  </div>
+
+  <!-- Einstellungen Modal -->
+  <div id="settingsModal" class="modal-backdrop" onclick="closeSettingsOnBackdrop(event)">
+    <div class="modal">
+      <h2>
+        Einstellungen
+        <button class="icon-btn" onclick="closeSettings()">✕</button>
+      </h2>
+
+      <div class="setting-group">
+        <label for="durationSelect">Runden-Timer (Sekunden)</label>
+        <select id="durationSelect" onchange="saveSettings()">
+          <option value="5">5 Sekunden (Extrem)</option>
+          <option value="8">8 Sekunden (Schnell)</option>
+          <option value="10" selected>10 Sekunden (Standard)</option>
+          <option value="12">12 Sekunden</option>
+          <option value="15">15 Sekunden (Entspannt)</option>
+          <option value="20">20 Sekunden</option>
+          <option value="30">30 Sekunden</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label for="modeSelect">Kategorien-Modus</label>
+        <select id="modeSelect" onchange="saveSettings()">
+          <option value="standard">Nur Standard (Familienfreundlich)</option>
+          <option value="mixed">Standard + Ü18 gemischt</option>
+          <option value="adult">Nur Ü18 (Party / Ab 18)</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label for="speechToggle">Sprachausgabe & Sounds</label>
+        <select id="speechToggle" onchange="saveSettings()">
+          <option value="on" selected>Sprache + Timer-Sounds aktiv</option>
+          <option value="nospeech">Nur Timer-Sounds (ohne Vorlesen)</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label>Eigene Kategorie hinzufügen</label>
+        <div class="row-input">
+          <input type="text" id="customCatInput" placeholder="z. B. Etwas in der Garage..." />
+          <button class="icon-btn" onclick="addCustomCategory()">+ Plus</button>
+        </div>
+      </div>
+
+      <button class="btn-secondary" onclick="resetUsedPool()">🔄 Gespielte Kategorien zurücksetzen</button>
+    </div>
+  </div>
+
+  <script>
+    // --- KATEGORIEN DATENBANK ---
+    const STANDARD_CATEGORIES = [
+      "Was gibt es zu trinken?", "Etwas im Kühlschrank", "Ein Tier mit Fell", "Eine Automarke",
+      "Etwas auf der Baustelle", "Ein Werkzeug", "Eine Stadt in Deutschland", "Ein Urlaubsland",
+      "Etwas im Badezimmer", "Ein Obst", "Ein Gemüse", "Etwas Süßes",
+      "Ein Beruf", "Eine Sportart", "Ein Musikinstrument", "Etwas am Strand",
+      "Ein Kleidungsstück", "Etwas im Wald", "Ein Möbelstück", "Eine Farbe",
+      "Etwas in der Küche", "Ein Film oder eine Serie", "Ein Promi oder Schauspieler", "Etwas das fliegt",
+      "Etwas das schwimmt", "Ein Getränk mit Alkohol", "Ein Schulfach", "Etwas im Garten",
+      "Ein Haustier", "Etwas rundes", "Etwas kaltes", "Etwas heißes",
+      "Ein Hobby", "Etwas im Auto", "Eine App auf dem Handy", "Ein Supermarkt-Produkt",
+      "Etwas für den Winter", "Etwas für den Sommer", "Ein Körperteil", "Eine Krankheit oder Verletzung",
+      "Etwas auf dem Frühstückstisch", "Ein Pizzabelag", "Eine Eissorte", "Etwas aus Holz",
+      "Etwas aus Metall", "Etwas aus Plastik", "Ein Spielzeug", "Ein Brettspiel oder Kartenspiel",
+      "Ein Superheld oder Bösewicht", "Eine Märchenfigur", "Etwas im Weltraum", "Ein Wetterphänomen",
+      "Etwas das stinkt", "Etwas das gut riecht", "Etwas sehr teures", "Etwas sehr kleines",
+      "Etwas riesengroßes", "Ein Fluss oder Meer", "Ein Berg oder Gebirge", "Eine Hauptstadt",
+      "Ein Mädchenname", "Ein Jungenname", "Etwas in der Schule", "Etwas im Büro",
+      "Etwas im Krankenhaus", "Etwas auf dem Bauernhof", "Ein Vogel", "Ein Insekt",
+      "Ein Meerestier", "Eine Blume oder Pflanze", "Ein Baum", "Etwas das Strom braucht",
+      "Etwas mit Rädern", "Ein Fortbewegungsmittel", "Etwas das man reparieren kann", "Etwas in der Hosentasche",
+      "Ein Grund zu spät zu kommen", "Etwas auf einer Party", "Ein Geschenk", "Etwas zu Weihnachten",
+      "Etwas zu Ostern", "Etwas im Schlafzimmer", "Etwas im Keller", "Etwas auf dem Dachboden",
+      "Ein Gewürz oder Kraut", "Eine Süßigkeit oder Schokolade", "Ein Fast-Food-Gericht", "Etwas beim Grillen",
+      "Ein Getränke-Hersteller", "Eine Modemarke", "Ein Videospiel", "Ein Buch oder Autor",
+      "Ein Liedtitel oder Band", "Etwas das man sammeln kann", "Ein Gegenstand aus Glas", "Etwas scharfes",
+      "Etwas weiches", "Etwas klebriges", "Etwas lautstarkes", "Ein Grund zum Feiern",
+      "Etwas im Reisekoffer", "Etwas beim Camping", "Ein Restaurant-Gericht", "Eine Soße oder Dip",
+      "Ein Backzutat", "Etwas auf dem Jahrmarkt", "Ein Zootier", "Etwas in der Handtasche",
+      "Ein Küchengerät", "Etwas aus Papier", "Ein Feiertag", "Eine Fremdsprache",
+      "Ein Schimpfwort (harmlos)", "Etwas im Hotelzimmer", "Etwas am Flughafen", "Ein Handwerksberuf",
+      "Etwas das leuchtet", "Etwas das man abschließen kann", "Ein Teil vom Fahrrad", "Etwas im Schwimmbad",
+      "Ein Begriff aus dem Fußball", "Etwas das man wirft", "Etwas das man zieht", "Etwas auf dem Spielplatz",
+      "Ein Käse oder Milchprodukt"
+    ];
+
+    const ADULT_CATEGORIES = [
+      "Etwas im Nachttisch", "Eine Ausrede für schlechten Sex", "Ein Ort für einen Quickie",
+      "Ein Kosename für das beste Stück", "Etwas das man beim Vorspiel sagt", "Ein Fetisch oder Kink",
+      "Etwas in einem Sexshop", "Eine Stellung", "Ein Grund für einen Kater",
+      "Etwas das man betrunken tut", "Ein Trinkspiel", "Ein Anmachspruch",
+      "Etwas das beim Date schiefgehen kann", "Ein Körperteil das man küsst", "Ein Verhütungsmittel",
+      "Eine erogene Zone", "Etwas das man unter der Dusche macht", "Ein Wort für Brüste",
+      "Ein Wort für Po", "Etwas das man im Stripclub sieht", "Ein Grund Schluss zu machen",
+      "Etwas das man heimlich macht", "Eine peinliche Situation", "Etwas das nach Sex riecht",
+      "Ein Film ab 18 oder Erotik-Begriff", "Etwas das man gefesselt macht", "Ein Rollenspiel-Kostüm",
+      "Ein Geräusch im Schlafzimmer", "Etwas das man morgens nach einem One-Night-Stand denkt",
+      "Ein Cocktail oder Shot", "Etwas das man auf einer WG-Party erlebt", "Eine Sünde",
+      "Etwas das man dem Ex schreiben würde", "Ein Ort an dem man schon nackt war",
+      "Etwas das flutscht", "Etwas hartes", "Etwas feuchtes", "Ein Tabuthema",
+      "Eine schlechte Angewohnheit", "Etwas das man beichten müsste", "Ein Grund für Hausverbot",
+      "Etwas das man beim Arzt nicht zugeben will"
+    ];
+
+    // --- STATE ---
+    let duration = parseInt(localStorage.getItem('nonstop_duration') || '10', 10);
+    let mode = localStorage.getItem('nonstop_mode') || 'standard'; // standard | mixed | adult
+    let speechEnabled = localStorage.getItem('nonstop_speech') || 'on';
+    let customCategories = JSON.parse(localStorage.getItem('nonstop_custom') || '[]');
+    let usedIndices = new Set();
+    let currentCategory = "";
+    let timerInterval = null;
+    let timeLeft = duration;
+    let audioCtx = null;
+
+    // SVG Ring Setup
+    const circle = document.getElementById('progressCircle');
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = 0;
+
+    // Init UI
+    document.getElementById('durationSelect').value = duration;
+    document.getElementById('modeSelect').value = mode;
+    document.getElementById('speechToggle').value = speechEnabled;
+    updateModeUI();
+    resetTimerDisplay();
+
+    // --- WEB AUDIO API (Sounds ohne MP3) ---
+    function ensureAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTick(high = false) {
+      ensureAudio();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(high ? 980 : 620, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.08);
+    }
+
+    function playBuzzer() {
+      ensureAudio();
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc1.type = 'sawtooth';
+      osc2.type = 'square';
+      osc1.frequency.setValueAtTime(145, audioCtx.currentTime);
+      osc2.frequency.setValueAtTime(152, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.65);
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc1.start();
+      osc2.start();
+      osc1.stop(audioCtx.currentTime + 0.65);
+      osc2.stop(audioCtx.currentTime + 0.65);
+    }
+
+    // --- SPRACHAUSGABE ---
+    function speak(text) {
+      if (speechEnabled !== 'on' || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'de-DE';
+      utter.rate = 1.08;
+      utter.pitch = 1.0;
+
+      // Bevorzuge deutsche Stimme (z. B. Anna / Helena auf iOS)
+      const voices = window.speechSynthesis.getVoices();
+      const deVoice = voices.find(v => v.lang.startsWith('de') && v.localService) || voices.find(v => v.lang.startsWith('de'));
+      if (deVoice) utter.voice = deVoice;
+
+      window.speechSynthesis.speak(utter);
+    }
+
+    // --- KATEGORIEN POOL ---
+    function getActivePool() {
+      let pool = [];
+      if (mode === 'standard') {
+        pool = STANDARD_CATEGORIES.map(c => ({ text: c, adult: false }));
+      } else if (mode === 'adult') {
+        pool = ADULT_CATEGORIES.map(c => ({ text: c, adult: true }));
+      } else {
+        pool = [
+          ...STANDARD_CATEGORIES.map(c => ({ text: c, adult: false })),
+          ...ADULT_CATEGORIES.map(c => ({ text: c, adult: true }))
+        ];
+      }
+      customCategories.forEach(c => pool.push({ text: c, adult: false }));
+      return pool;
+    }
+
+    function updatePoolStats() {
+      const pool = getActivePool();
+      document.getElementById('poolStats').textContent = `Verfügbar: ${pool.length - usedIndices.size} von ${pool.length} Kategorien`;
+    }
+
+    // --- SPIELABLAUF ---
+    function nextRound() {
+      ensureAudio();
+      stopTimer(false);
+
+      const pool = getActivePool();
+      if (usedIndices.size >= pool.length) {
+        usedIndices.clear();
+      }
+
+      let idx;
+      do {
+        idx = Math.floor(Math.random() * pool.length);
+      } while (usedIndices.has(idx) && usedIndices.size < pool.length);
+
+      usedIndices.add(idx);
+      const chosen = pool[idx];
+      currentCategory = chosen.text;
+
+      // UI aktualisieren
+      const catTextEl = document.getElementById('categoryText');
+      const badgeEl = document.getElementById('categoryBadge');
+      const boxEl = document.getElementById('categoryBox');
+
+      catTextEl.textContent = chosen.text;
+      boxEl.classList.remove('pulse', 'shake');
+      void boxEl.offsetWidth; // Reflow für Animation
+      boxEl.classList.add('pulse');
+
+      if (chosen.adult) {
+        badgeEl.textContent = "🔥 Ü18 Kategorie";
+        badgeEl.classList.add('adult');
+      } else {
+        badgeEl.textContent = "Kategorie";
+        badgeEl.classList.remove('adult');
+      }
+
+      updatePoolStats();
+      speak(chosen.text);
+      startTimer();
+    }
+
+    function startTimer() {
+      timeLeft = duration;
+      const mainBtn = document.getElementById('mainBtn');
+      mainBtn.textContent = "⏭ Nächste Runde (läuft...)";
+      mainBtn.classList.add('running');
+      document.getElementById('timerStatus').textContent = "Karten legen!";
+
+      let lastWholeSecond = Math.ceil(timeLeft);
+      const step = 0.05; // 50ms für flüssigen Ring
+
+      updateRing(timeLeft, duration);
+
+      timerInterval = setInterval(() => {
+        timeLeft = Math.max(0, +(timeLeft - step).toFixed(2));
+        document.getElementById('timerSeconds').textContent = timeLeft.toFixed(1);
+        updateRing(timeLeft, duration);
+
+        const currentWhole = Math.ceil(timeLeft);
+        if (currentWhole < lastWholeSecond && currentWhole > 0) {
+          lastWholeSecond = currentWhole;
+          if (currentWhole <= 3) {
+            playTick(true);
+          } else {
+            playTick(false);
+          }
+        }
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          onTimeUp();
+        }
+      }, step * 1000);
+    }
+
+    function onTimeUp() {
+      playBuzzer();
+      if (navigator.vibrate) navigator.vibrate([200, 100, 300]);
+      document.getElementById('timerStatus').textContent = "ZEIT UM!";
+      document.getElementById('categoryBox').classList.add('shake');
+      const mainBtn = document.getElementById('mainBtn');
+      mainBtn.textContent = "▶ Nächste Runde";
+      mainBtn.classList.remove('running');
+    }
+
+    function stopTimer(resetText = true) {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      if (resetText) {
+        resetTimerDisplay();
+        const mainBtn = document.getElementById('mainBtn');
+        mainBtn.textContent = "▶ Nächste Runde";
+        mainBtn.classList.remove('running');
+      }
+    }
+
+    function resetTimerDisplay() {
+      timeLeft = duration;
+      document.getElementById('timerSeconds').textContent = duration.toFixed(1);
+      document.getElementById('timerStatus').textContent = "Sekunden";
+      updateRing(duration, duration);
+    }
+
+    function updateRing(current, total) {
+      const fraction = current / total;
+      const offset = circumference - fraction * circumference;
+      circle.style.strokeDashoffset = offset;
+
+      if (current <= 3 && current > 0) {
+        circle.style.stroke = '#f43f5e';
+      } else if (current === 0) {
+        circle.style.stroke = '#f43f5e';
+      } else {
+        circle.style.stroke = '#38bdf8';
+      }
+    }
+
+    function repeatSpeech() {
+      if (currentCategory) speak(currentCategory);
+    }
+
+    // --- MODUS & SETTINGS ---
+    function cycleMode() {
+      const order = ['standard', 'mixed', 'adult'];
+      mode = order[(order.indexOf(mode) + 1) % order.length];
+      document.getElementById('modeSelect').value = mode;
+      localStorage.setItem('nonstop_mode', mode);
+      usedIndices.clear();
+      updateModeUI();
+    }
+
+    function updateModeUI() {
+      const btn = document.getElementById('adultToggleBtn');
+      if (mode === 'standard') {
+        btn.textContent = "Modus: Standard";
+        btn.classList.remove('active-adult');
+      } else if (mode === 'mixed') {
+        btn.textContent = "Modus: + Ü18";
+        btn.classList.add('active-adult');
+      } else {
+        btn.textContent = "Modus: Nur Ü18";
+        btn.classList.add('active-adult');
+      }
+      updatePoolStats();
+    }
+
+    function openSettings() {
+      document.getElementById('settingsModal').classList.add('open');
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('open');
+    }
+
+    function closeSettingsOnBackdrop(e) {
+      if (e.target.id === 'settingsModal') closeSettings();
+    }
+
+    function saveSettings() {
+      duration = parseInt(document.getElementById('durationSelect').value, 10);
+      const newMode = document.getElementById('modeSelect').value;
+      speechEnabled = document.getElementById('speechToggle').value;
+
+      localStorage.setItem('nonstop_duration', duration);
+      localStorage.setItem('nonstop_mode', newMode);
+      localStorage.setItem('nonstop_speech', speechEnabled);
+
+      if (newMode !== mode) {
+        mode = newMode;
+        usedIndices.clear();
+      }
+      updateModeUI();
+      if (!timerInterval) resetTimerDisplay();
+    }
+
+    function addCustomCategory() {
+      const input = document.getElementById('customCatInput');
+      const val = input.value.trim();
+      if (!val) return;
+      customCategories.push(val);
+      localStorage.setItem('nonstop_custom', JSON.stringify(customCategories));
+      input.value = '';
+      updatePoolStats();
+      alert(`„${val}“ wurde hinzugefügt!`);
+    }
+
+    function resetUsedPool() {
+      usedIndices.clear();
+      updatePoolStats();
+      closeSettings();
+    }
+
+    // Stimmen vorladen (für iOS Safari)
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
+  </script>
+</body>
+</html>
