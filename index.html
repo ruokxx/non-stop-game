@@ -108,7 +108,7 @@
       color: #f9a8d4;
     }
 
-    /* Main Arena – passt sich flexibel an den verbleibenden Platz an */
+    /* Main Arena */
     main {
       flex: 1 1 auto;
       min-height: 0;
@@ -218,15 +218,27 @@
       margin: 0;
     }
 
-    /* Timer Circle – skaliert dynamisch mit der Bildschirmhöhe */
+    /* Timer Circle – gleichzeitig Play-Button */
     .timer-wrapper {
       flex-shrink: 1;
       position: relative;
-      width: clamp(125px, 21vh, 175px);
-      height: clamp(125px, 21vh, 175px);
+      width: clamp(135px, 22vh, 185px);
+      height: clamp(135px, 22vh, 185px);
       display: flex;
       align-items: center;
       justify-content: center;
+      border-radius: 50%;
+      transition: transform 0.15s ease, box-shadow 0.25s ease;
+    }
+
+    .timer-wrapper.ready-to-play {
+      cursor: pointer;
+      box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.2), 0 12px 30px rgba(16, 185, 129, 0.45);
+      animation: readyPulse 1.3s infinite ease-in-out;
+    }
+
+    .timer-wrapper.ready-to-play:active {
+      transform: scale(0.94);
     }
 
     svg.progress-ring {
@@ -236,7 +248,7 @@
     }
 
     .progress-ring__bg {
-      fill: transparent;
+      fill: rgba(30, 41, 59, 0.55);
       stroke: rgba(255, 255, 255, 0.08);
       stroke-width: 11;
     }
@@ -254,6 +266,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
     }
 
     .timer-seconds {
@@ -263,10 +276,31 @@
       line-height: 1;
     }
 
+    .play-icon {
+      display: none;
+      font-size: clamp(2.5rem, 6vh, 3.5rem);
+      line-height: 1;
+      color: #34d399;
+      margin-left: 6px; /* Optische Zentrierung für Play-Dreieck */
+    }
+
+    .timer-wrapper.ready-to-play .timer-seconds {
+      display: none;
+    }
+
+    .timer-wrapper.ready-to-play .play-icon {
+      display: block;
+    }
+
+    .timer-wrapper.ready-to-play .timer-label {
+      color: #6ee7b7;
+      font-size: 0.72rem;
+    }
+
     .timer-label {
       font-size: 0.66rem;
       color: var(--muted);
-      margin-top: 3px;
+      margin-top: 4px;
       text-transform: uppercase;
       letter-spacing: 0.8px;
       font-weight: 700;
@@ -398,6 +432,11 @@
       gap: 8px;
     }
 
+    @keyframes readyPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.045); }
+    }
+
     @keyframes popIn {
       0% { opacity: 0; transform: scale(0.92) translateY(-6px); }
       100% { opacity: 1; transform: scale(1) translateY(0); }
@@ -442,12 +481,14 @@
       <p id="categoryText" class="category-text">Tippe auf „Nächste Runde“, um zu starten!</p>
     </div>
 
-    <div class="timer-wrapper">
+    <!-- Timer-Kreis wird nach der Ansage zum Play-Button -->
+    <div id="timerWrapper" class="timer-wrapper" onclick="handleTimerCircleClick()">
       <svg class="progress-ring" viewBox="0 0 175 175">
         <circle class="progress-ring__bg" r="75" cx="87.5" cy="87.5" />
         <circle id="progressCircle" class="progress-ring__circle" r="75" cx="87.5" cy="87.5" />
       </svg>
       <div class="timer-display">
+        <span id="playIcon" class="play-icon">▶</span>
         <span id="timerSeconds" class="timer-seconds">10.0</span>
         <span id="timerStatus" class="timer-label">Sekunden</span>
       </div>
@@ -473,7 +514,7 @@
       </h2>
 
       <div class="setting-group">
-        <label for="durationSelect">Runden-Timer (startet nach dem Vorlesen)</label>
+        <label for="durationSelect">Runden-Timer (Sekunden)</label>
         <select id="durationSelect" onchange="saveSettings()">
           <option value="5">5 Sekunden (Extrem)</option>
           <option value="8">8 Sekunden (Schnell)</option>
@@ -508,8 +549,8 @@
       <div class="setting-group">
         <label for="speechToggle">Sprachausgabe & Sounds</label>
         <select id="speechToggle" onchange="saveSettings()">
-          <option value="on" selected>Erst vorlesen, dann Timer starten</option>
-          <option value="nospeech">Ohne Vorlesen (Timer startet sofort)</option>
+          <option value="on" selected>Vorlesen aktiv (danach Play-Button)</option>
+          <option value="nospeech">Ohne Vorlesen (direkt Play-Button)</option>
         </select>
       </div>
 
@@ -657,8 +698,9 @@
     let audioCtx = null;
     let speechPollInterval = null;
     let activeSpeechId = 0;
+    let isReadyToStartTimer = false;
 
-    // SVG Ring Setup (via viewBox 0 0 175 175 exakt skaliert)
+    // SVG Ring Setup
     const circle = document.getElementById('progressCircle');
     const radius = 75;
     const circumference = radius * 2 * Math.PI;
@@ -735,7 +777,7 @@
       osc2.stop(audioCtx.currentTime + 0.65);
     }
 
-    // --- ZUVERLÄSSIGE iOS-SPRACHAUSGABE IN ETAPPEN ---
+    // --- ZUVERLÄSSIGE iOS-SPRACHAUSGABE ---
     function speakSequence(phrases, onAllDone) {
       clearInterval(speechPollInterval);
       activeSpeechId++;
@@ -788,7 +830,7 @@
             if (myId === activeSpeechId && onAllDone) {
               setTimeout(() => {
                 if (myId === activeSpeechId) onAllDone();
-              }, 250);
+              }, 200);
             }
           }
         }, 150);
@@ -840,6 +882,35 @@
         rb.textContent = `Runde ${roundCount} • ⚡ SPEZIAL!`;
       } else {
         rb.textContent = `Runde ${roundCount} • Spezial in ${rem}`;
+      }
+    }
+
+    // --- PLAY-BUTTON IM TIMER-KREIS ---
+    function showReadyPlayButton() {
+      isReadyToStartTimer = true;
+      const wrapper = document.getElementById('timerWrapper');
+      wrapper.classList.add('ready-to-play');
+      circle.style.stroke = '#10b981';
+      circle.style.strokeDashoffset = 0;
+      document.getElementById('timerStatus').textContent = "Timer starten";
+
+      const mainBtn = document.getElementById('mainBtn');
+      mainBtn.textContent = "⏭ Nächste Runde";
+      mainBtn.classList.remove('speaking-state', 'running');
+    }
+
+    function handleTimerCircleClick() {
+      ensureAudio();
+      // Falls noch vorgelesen wird oder der Play-Button bereitsteht -> sofort Timer starten
+      if (isReadyToStartTimer || speechPollInterval) {
+        activeSpeechId++;
+        clearInterval(speechPollInterval);
+        speechPollInterval = null;
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+        document.getElementById('categoryBox').classList.remove('speaking');
+        startTimer();
       }
     }
 
@@ -912,16 +983,23 @@
         mainBtn.classList.add('speaking-state');
 
         speakSequence(speechQueue, () => {
+          speechPollInterval = null;
           boxEl.classList.remove('speaking');
           mainBtn.classList.remove('speaking-state');
-          startTimer();
+          // Nach dem Vorlesen wird der Kreis zum Play-Button
+          showReadyPlayButton();
         });
       } else {
-        startTimer();
+        // Ohne Sprachausgabe direkt den Play-Button anzeigen
+        showReadyPlayButton();
       }
     }
 
     function startTimer() {
+      isReadyToStartTimer = false;
+      const wrapper = document.getElementById('timerWrapper');
+      wrapper.classList.remove('ready-to-play');
+
       if (timerInterval) clearInterval(timerInterval);
       timeLeft = duration;
       const mainBtn = document.getElementById('mainBtn');
@@ -933,6 +1011,7 @@
       let lastWholeSecond = Math.ceil(timeLeft);
       const step = 0.05;
 
+      playTick(false);
       updateRing(timeLeft, duration);
 
       timerInterval = setInterval(() => {
@@ -965,8 +1044,11 @@
     }
 
     function stopAll(resetText = true) {
+      isReadyToStartTimer = false;
+      document.getElementById('timerWrapper').classList.remove('ready-to-play');
       activeSpeechId++;
       clearInterval(speechPollInterval);
+      speechPollInterval = null;
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
@@ -1059,7 +1141,7 @@
       }
       updateModeUI();
       updateRoundBadge();
-      if (!timerInterval) resetTimerDisplay();
+      if (!timerInterval && !isReadyToStartTimer) resetTimerDisplay();
     }
 
     function addCustomCategory() {
