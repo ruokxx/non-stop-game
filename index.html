@@ -30,25 +30,35 @@
       user-select: none;
     }
 
-    body {
+    html, body {
       margin: 0;
-      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      overscroll-behavior: none;
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-      min-height: 100dvh;
+    }
+
+    body {
+      position: fixed;
+      inset: 0;
+      padding: max(8px, env(safe-area-inset-top)) 16px max(10px, env(safe-area-inset-bottom)) 16px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      overflow-x: hidden;
+      gap: 6px;
     }
 
     /* Header & Copyright */
     header {
+      flex-shrink: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0 4px 0;
+      padding: 2px 0;
       gap: 8px;
     }
 
@@ -59,17 +69,17 @@
     }
 
     .logo {
-      font-size: 1.4rem;
+      font-size: clamp(1.2rem, 3.5vh, 1.45rem);
       font-weight: 900;
       letter-spacing: 1px;
-      line-height: 1.1;
+      line-height: 1.05;
       background: linear-gradient(135deg, #38bdf8, #818cf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .copyright {
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       color: var(--muted);
       font-weight: 500;
       letter-spacing: 0.3px;
@@ -85,9 +95,9 @@
       background: var(--card);
       border: 1px solid rgba(255,255,255,0.1);
       color: var(--text);
-      border-radius: 12px;
-      padding: 8px 10px;
-      font-size: 0.82rem;
+      border-radius: 11px;
+      padding: 7px 10px;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
     }
@@ -98,32 +108,34 @@
       color: #f9a8d4;
     }
 
-    /* Main Arena */
+    /* Main Arena – passt sich flexibel an den verbleibenden Platz an */
     main {
-      flex: 1;
+      flex: 1 1 auto;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 14px;
+      justify-content: space-evenly;
+      gap: clamp(6px, 1.5vh, 14px);
       text-align: center;
-      padding: 6px 0;
+      overflow: hidden;
     }
 
     .status-row {
+      flex-shrink: 0;
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
       justify-content: center;
       flex-wrap: wrap;
     }
 
     .badge {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
-      padding: 4px 12px;
+      letter-spacing: 1.1px;
+      padding: 3px 10px;
       border-radius: 999px;
       background: rgba(56, 189, 248, 0.15);
       color: var(--accent);
@@ -142,13 +154,14 @@
     /* Spezial-Challenge Box */
     .special-box {
       display: none;
+      flex-shrink: 1;
       width: 100%;
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.12));
       border: 1.5px solid var(--special);
-      border-radius: 18px;
-      padding: 12px 16px;
+      border-radius: 16px;
+      padding: clamp(8px, 1.4vh, 12px) 14px;
       text-align: center;
-      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.18);
       animation: popIn 0.35s ease;
     }
 
@@ -157,39 +170,40 @@
     }
 
     .special-title {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 1.4px;
+      letter-spacing: 1.3px;
       color: #fbbf24;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .special-text {
-      font-size: 0.98rem;
+      font-size: clamp(0.82rem, 2vh, 0.96rem);
       font-weight: 700;
       color: #fef3c7;
-      line-height: 1.3;
+      line-height: 1.25;
       margin: 0;
     }
 
     .category-box {
+      flex: 0 1 auto;
       background: var(--card);
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 24px;
-      padding: 22px 18px;
+      border-radius: 22px;
+      padding: clamp(12px, 2.4vh, 22px) 16px;
       width: 100%;
-      min-height: 130px;
+      min-height: clamp(84px, 14vh, 130px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.5);
       transition: transform 0.2s ease, border-color 0.2s ease;
     }
 
     .category-box.pulse {
-      transform: scale(1.02);
+      transform: scale(1.015);
       border-color: var(--accent);
     }
 
@@ -198,17 +212,18 @@
     }
 
     .category-text {
-      font-size: 1.55rem;
+      font-size: clamp(1.2rem, 3.2vh, 1.6rem);
       font-weight: 800;
-      line-height: 1.25;
+      line-height: 1.22;
       margin: 0;
     }
 
-    /* Timer Circle */
+    /* Timer Circle – skaliert dynamisch mit der Bildschirmhöhe */
     .timer-wrapper {
+      flex-shrink: 1;
       position: relative;
-      width: 175px;
-      height: 175px;
+      width: clamp(125px, 21vh, 175px);
+      height: clamp(125px, 21vh, 175px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -216,8 +231,8 @@
 
     svg.progress-ring {
       transform: rotate(-90deg);
-      width: 175px;
-      height: 175px;
+      width: 100%;
+      height: 100%;
     }
 
     .progress-ring__bg {
@@ -242,42 +257,49 @@
     }
 
     .timer-seconds {
-      font-size: 3.1rem;
+      font-size: clamp(2.1rem, 5vh, 3.1rem);
       font-weight: 900;
       font-variant-numeric: tabular-nums;
       line-height: 1;
     }
 
     .timer-label {
-      font-size: 0.72rem;
+      font-size: 0.66rem;
       color: var(--muted);
-      margin-top: 4px;
+      margin-top: 3px;
       text-transform: uppercase;
       letter-spacing: 0.8px;
       font-weight: 700;
     }
 
+    .stats {
+      flex-shrink: 0;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
     /* Primary Action Button */
     .controls {
+      flex-shrink: 0;
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      padding-bottom: 10px;
+      gap: 8px;
     }
 
     .btn-primary {
       width: 100%;
-      padding: 18px;
-      border-radius: 20px;
+      padding: clamp(14px, 2.2vh, 18px);
+      border-radius: 18px;
       border: none;
       background: linear-gradient(135deg, #0284c7, #38bdf8);
       color: #0f172a;
-      font-size: 1.25rem;
+      font-size: clamp(1.08rem, 2.4vh, 1.25rem);
       font-weight: 900;
       letter-spacing: 0.5px;
       cursor: pointer;
-      box-shadow: 0 10px 25px var(--accent-glow);
+      box-shadow: 0 8px 20px var(--accent-glow);
       transition: transform 0.1s ease;
     }
 
@@ -287,27 +309,27 @@
 
     .btn-primary.speaking-state {
       background: linear-gradient(135deg, #d97706, #fbbf24);
-      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35);
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.35);
     }
 
     .btn-primary.running {
       background: linear-gradient(135deg, #10b981, #34d399);
-      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
     }
 
     .sub-controls {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
     .btn-secondary {
       flex: 1;
-      padding: 11px;
-      border-radius: 14px;
+      padding: 10px;
+      border-radius: 13px;
       border: 1px solid rgba(255,255,255,0.1);
       background: var(--card);
       color: var(--text);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
     }
@@ -333,17 +355,17 @@
       width: 100%;
       max-width: 500px;
       border-radius: 28px 28px 0 0;
-      padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) 20px;
+      padding: 22px 20px calc(22px + env(safe-area-inset-bottom)) 20px;
       max-height: 85dvh;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
     }
 
     .modal h2 {
       margin: 0;
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -356,14 +378,14 @@
     }
 
     .setting-group label {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: var(--muted);
       font-weight: 600;
     }
 
     select, input[type="text"] {
       width: 100%;
-      padding: 12px 14px;
+      padding: 11px 13px;
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.15);
       background: #0f172a;
@@ -374,12 +396,6 @@
     .row-input {
       display: flex;
       gap: 8px;
-    }
-
-    .stats {
-      font-size: 0.76rem;
-      color: var(--muted);
-      text-align: center;
     }
 
     @keyframes popIn {
@@ -427,7 +443,7 @@
     </div>
 
     <div class="timer-wrapper">
-      <svg class="progress-ring">
+      <svg class="progress-ring" viewBox="0 0 175 175">
         <circle class="progress-ring__bg" r="75" cx="87.5" cy="87.5" />
         <circle id="progressCircle" class="progress-ring__circle" r="75" cx="87.5" cy="87.5" />
       </svg>
@@ -512,7 +528,6 @@
   <script>
     // --- 225 STANDARD KATEGORIEN ---
     const STANDARD_CATEGORIES = [
-      // Bisherige 125
       "Was gibt es zu trinken?", "Etwas im Kühlschrank", "Ein Tier mit Fell", "Eine Automarke",
       "Etwas auf der Baustelle", "Ein Werkzeug", "Eine Stadt in Deutschland", "Ein Urlaubsland",
       "Etwas im Badezimmer", "Ein Obst", "Ein Gemüse", "Etwas Süßes",
@@ -545,8 +560,6 @@
       "Etwas das leuchtet", "Etwas das man abschließen kann", "Ein Teil vom Fahrrad", "Etwas im Schwimmbad",
       "Ein Begriff aus dem Fußball", "Etwas das man wirft", "Etwas das man zieht", "Etwas auf dem Spielplatz",
       "Ein Käse oder Milchprodukt",
-
-      // 100 NEUE KATEGORIEN
       "Etwas in der Werkstatt", "Ein Haushaltsgerät", "Etwas auf dem Schreibtisch", "Ein Gebäck oder Kuchen",
       "Ein Warmgetränk", "Etwas das man schält", "Etwas das man schneidet", "Etwas das schmilzt",
       "Etwas das brennt", "Etwas das man aufblasen kann", "Etwas das man falten kann", "Etwas durchsichtiges",
@@ -600,7 +613,7 @@
       "Diese Runde musst du beim Ablegen AUFSTEHEN – sonst ziehst du eine Strafkarte!",
       "Diese Runde darfst du NICHT LACHEN oder grinsen – sonst ziehst du eine Strafkarte!",
       "Diese Runde musst du mit zugehaltener NASE sprechen – sonst ziehst du eine Strafkarte!",
-      "Diese Runde musst du deine Antworten RÜCKWÄRTS buchstabieren oder wie ein Roboter sprechen – sonst Strafkarte!",
+      "Diese Runde musst du wie ein Roboter sprechen – sonst ziehst du eine Strafkarte!",
       "Diese Runde darfst du nur die LINKE HAND zum Ablegen benutzen – sonst ziehst du eine Strafkarte!",
       "Diese Runde musst du nach deinem Wort sofort in die HÄNDE KLATSCHEN – sonst ziehst du eine Strafkarte!",
       "Diese Runde musst du mit geschlossenen AUGEN spielen – sonst ziehst du eine Strafkarte!",
@@ -614,7 +627,7 @@
       "Diese Runde musst du deine Antwort in einer FREMDSPRACHE oder mit starkem Akzent sagen – sonst Strafkarte!",
       "Diese Runde darfst du beim Spielen NICHT BLINZELN – sonst ziehst du eine Strafkarte!",
       "Diese Runde musst du eine Hand auf deinen KOPF legen – sonst ziehst du eine Strafkarte!",
-      "Diese Runde musst du vor jedem Wort „Chef“ oder „Meister“ sagen – sonst ziehst du eine Strafkarte!",
+      "Diese Runde musst du vor jedem Wort Chef oder Meister sagen – sonst ziehst du eine Strafkarte!",
       "Diese Runde musst du deine Antwort wie ein NACHRICHTENSPRECHER ansagen – sonst ziehst du eine Strafkarte!",
       "Diese Runde musst du deine Karten mit dem ELLBOGEN oder Handrücken ablegen – sonst Strafkarte!",
       "Diese Runde darfst du erst ablegen, wenn du dich einmal im KREIS gedreht hast – sonst Strafkarte!",
@@ -642,11 +655,12 @@
     let timerInterval = null;
     let timeLeft = duration;
     let audioCtx = null;
-    let speechWatchdog = null;
+    let speechPollInterval = null;
+    let activeSpeechId = 0;
 
-    // SVG Ring Setup
+    // SVG Ring Setup (via viewBox 0 0 175 175 exakt skaliert)
     const circle = document.getElementById('progressCircle');
-    const radius = circle.r.baseVal.value;
+    const radius = 75;
     const circumference = radius * 2 * Math.PI;
     circle.style.strokeDasharray = `${circumference} ${circumference}`;
     circle.style.strokeDashoffset = 0;
@@ -672,7 +686,7 @@
 
     function playSpecialAlert() {
       ensureAudio();
-      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 - E5 - G5 - C6 Fanfare
+      const notes = [523.25, 659.25, 783.99, 1046.50];
       notes.forEach((freq, i) => {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -721,43 +735,64 @@
       osc2.stop(audioCtx.currentTime + 0.65);
     }
 
-    // --- SPRACHAUSGABE MIT CALLBACK FÜR TIMERSTART ---
-    function speakAndThen(text, onDoneCallback) {
-      clearTimeout(speechWatchdog);
+    // --- ZUVERLÄSSIGE iOS-SPRACHAUSGABE IN ETAPPEN ---
+    function speakSequence(phrases, onAllDone) {
+      clearInterval(speechPollInterval);
+      activeSpeechId++;
+      const myId = activeSpeechId;
+
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
 
-      if (speechEnabled !== 'on' || !('speechSynthesis' in window)) {
-        if (onDoneCallback) onDoneCallback();
+      if (speechEnabled !== 'on' || !('speechSynthesis' in window) || phrases.length === 0) {
+        if (onAllDone) onAllDone();
         return;
       }
 
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'de-DE';
-      utter.rate = 1.06;
-      utter.pitch = 1.0;
+      setTimeout(() => {
+        if (myId !== activeSpeechId) return;
 
-      const voices = window.speechSynthesis.getVoices();
-      const deVoice = voices.find(v => v.lang.startsWith('de') && v.localService) || voices.find(v => v.lang.startsWith('de'));
-      if (deVoice) utter.voice = deVoice;
+        const voices = window.speechSynthesis.getVoices();
+        const deVoice = voices.find(v => v.lang.startsWith('de') && v.localService) || voices.find(v => v.lang.startsWith('de'));
 
-      let finished = false;
-      const finishOnce = () => {
-        if (finished) return;
-        finished = true;
-        clearTimeout(speechWatchdog);
-        if (onDoneCallback) onDoneCallback();
-      };
+        phrases.forEach((phrase) => {
+          const utter = new SpeechSynthesisUtterance(phrase);
+          utter.lang = 'de-DE';
+          utter.rate = 1.04;
+          utter.pitch = 1.0;
+          if (deVoice) utter.voice = deVoice;
+          window.speechSynthesis.speak(utter);
+        });
 
-      utter.onend = finishOnce;
-      utter.onerror = finishOnce;
+        let hasStartedSpeaking = false;
+        const startTime = Date.now();
+        const totalChars = phrases.join(' ').length;
+        const maxHardTimeout = Math.max(4000, totalChars * 110 + 2500);
 
-      // Sicherheits-Fallback (falls iOS Safari onend bei langem Text verschluckt)
-      const estimatedMs = Math.max(2500, text.length * 85 + 1200);
-      speechWatchdog = setTimeout(finishOnce, estimatedMs);
+        speechPollInterval = setInterval(() => {
+          if (myId !== activeSpeechId) {
+            clearInterval(speechPollInterval);
+            return;
+          }
 
-      window.speechSynthesis.speak(utter);
+          const isSpeaking = window.speechSynthesis.speaking || window.speechSynthesis.pending;
+          if (isSpeaking) {
+            hasStartedSpeaking = true;
+          }
+
+          const elapsed = Date.now() - startTime;
+
+          if ((hasStartedSpeaking && !isSpeaking) || (!hasStartedSpeaking && elapsed > 1500) || elapsed > maxHardTimeout) {
+            clearInterval(speechPollInterval);
+            if (myId === activeSpeechId && onAllDone) {
+              setTimeout(() => {
+                if (myId === activeSpeechId) onAllDone();
+              }, 250);
+            }
+          }
+        }, 150);
+      }, 80);
     }
 
     // --- POOLS ---
@@ -816,7 +851,6 @@
       roundCount++;
       updateRoundBadge();
 
-      // Prüfen ob Spezial-Runde fällig ist
       const isSpecialRound = specialInterval > 0 && (roundCount % specialInterval === 0);
       const specialBox = document.getElementById('specialBox');
       const specialTextEl = document.getElementById('specialText');
@@ -831,7 +865,6 @@
         specialBox.classList.remove('visible');
       }
 
-      // Zufällige Kategorie ziehen
       const pool = getActivePool();
       if (usedIndices.size >= pool.length) {
         usedIndices.clear();
@@ -846,7 +879,6 @@
       const chosen = pool[idx];
       currentCategory = chosen.text;
 
-      // UI aktualisieren
       const catTextEl = document.getElementById('categoryText');
       const badgeEl = document.getElementById('categoryBadge');
       const boxEl = document.getElementById('categoryBox');
@@ -867,10 +899,9 @@
       updatePoolStats();
       resetTimerDisplay();
 
-      // Erst vorlesen, DANN Timer starten
-      const textToSpeak = isSpecialRound
-        ? `Achtung Spezialrunde! ${currentSpecial} ... Die Kategorie lautet: ${chosen.text}`
-        : chosen.text;
+      const speechQueue = isSpecialRound
+        ? ["Achtung Spezialrunde!", currentSpecial, `Die Kategorie lautet: ${chosen.text}`]
+        : [chosen.text];
 
       if (speechEnabled === 'on') {
         boxEl.classList.add('speaking');
@@ -880,7 +911,7 @@
         mainBtn.classList.remove('running');
         mainBtn.classList.add('speaking-state');
 
-        speakAndThen(textToSpeak, () => {
+        speakSequence(speechQueue, () => {
           boxEl.classList.remove('speaking');
           mainBtn.classList.remove('speaking-state');
           startTimer();
@@ -934,7 +965,8 @@
     }
 
     function stopAll(resetText = true) {
-      clearTimeout(speechWatchdog);
+      activeSpeechId++;
+      clearInterval(speechPollInterval);
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
@@ -967,10 +999,10 @@
 
     function repeatSpeech() {
       if (!currentCategory) return;
-      const text = currentSpecial
-        ? `Spezialrunde: ${currentSpecial}. Kategorie: ${currentCategory}`
-        : currentCategory;
-      speakAndThen(text, null);
+      const queue = currentSpecial
+        ? ["Spezialrunde:", currentSpecial, `Kategorie: ${currentCategory}`]
+        : [currentCategory];
+      speakSequence(queue, null);
     }
 
     // --- MODUS & SETTINGS ---
@@ -1053,7 +1085,6 @@
       closeSettings();
     }
 
-    // Stimmen vorladen (für iOS Safari)
     if ('speechSynthesis' in window) {
       window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
     }
