@@ -52,6 +52,110 @@
       gap: 6px;
     }
 
+    /* Start / Welcome Overlay */
+    .welcome-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 75%);
+      padding: max(18px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom)) 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .welcome-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.03);
+    }
+
+    .welcome-header {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .welcome-logo {
+      font-size: clamp(1.8rem, 4.5vh, 2.3rem);
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-card {
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 26px;
+      padding: clamp(18px, 3vh, 26px) 20px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .greeting-title {
+      font-size: clamp(1.35rem, 3.4vh, 1.75rem);
+      font-weight: 900;
+      color: var(--accent);
+      margin: 0;
+    }
+
+    .rules-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+      font-size: clamp(0.92rem, 2.1vh, 1.05rem);
+      line-height: 1.38;
+      color: #e2e8f0;
+    }
+
+    .rules-list li {
+      background: rgba(15, 23, 42, 0.65);
+      padding: 10px 14px;
+      border-radius: 14px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .welcome-actions {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-speak-rules {
+      width: 100%;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1.5px solid var(--accent);
+      background: rgba(56, 189, 248, 0.15);
+      color: #e0f2fe;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-speak-rules.active {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: #fbbf24;
+      color: #fef3c7;
+    }
+
     /* Header & Copyright */
     header {
       flex-shrink: 0;
@@ -59,7 +163,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 2px 0;
-      gap: 8px;
+      gap: 6px;
     }
 
     .brand-block {
@@ -69,7 +173,7 @@
     }
 
     .logo {
-      font-size: clamp(1.2rem, 3.5vh, 1.45rem);
+      font-size: clamp(1.15rem, 3.3vh, 1.4rem);
       font-weight: 900;
       letter-spacing: 1px;
       line-height: 1.05;
@@ -79,16 +183,16 @@
     }
 
     .copyright {
-      font-size: 0.65rem;
+      font-size: 0.63rem;
       color: var(--muted);
       font-weight: 500;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.2px;
       margin-top: 2px;
     }
 
     .top-actions {
       display: flex;
-      gap: 6px;
+      gap: 5px;
     }
 
     .icon-btn {
@@ -96,8 +200,8 @@
       border: 1px solid rgba(255,255,255,0.1);
       color: var(--text);
       border-radius: 11px;
-      padding: 7px 10px;
-      font-size: 0.8rem;
+      padding: 7px 9px;
+      font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
     }
@@ -281,7 +385,7 @@
       font-size: clamp(2.5rem, 6vh, 3.5rem);
       line-height: 1;
       color: #34d399;
-      margin-left: 6px; /* Optische Zentrierung für Play-Dreieck */
+      margin-left: 6px;
     }
 
     .timer-wrapper.ready-to-play .timer-seconds {
@@ -454,12 +558,36 @@
 </head>
 <body>
 
+  <!-- WILLKOMMENS- & REGEL-BILDSCHIRM -->
+  <div id="welcomeScreen" class="welcome-screen">
+    <div class="welcome-header">
+      <div class="welcome-logo">NONSTOP</div>
+      <div class="copyright">Copyright by Sebastian,T 2026</div>
+    </div>
+
+    <div class="welcome-card">
+      <h1 id="greetingHeadline" class="greeting-title">Hallo und willkommen!</h1>
+      <ul class="rules-list">
+        <li>🃏 Jeder Spieler hat <strong>10 Karten</strong> offen vor sich liegen.</li>
+        <li>⭐ Es gibt <strong>Joker</strong> – diese darf man für jeden beliebigen Buchstaben nutzen.</li>
+        <li>🏆 Gewonnen hat der Spieler, der <strong>zuerst keine Karten mehr</strong> hat!</li>
+      </ul>
+    </div>
+
+    <div class="welcome-actions">
+      <button id="speakRulesBtn" class="btn-speak-rules" onclick="speakIntroRules()">🔊 Begrüßung & Regeln vorlesen</button>
+      <button class="btn-primary" onclick="enterGame()">▶ Spiel beginnen</button>
+    </div>
+  </div>
+
+  <!-- HAUPTSPIEL -->
   <header>
     <div class="brand-block">
       <div class="logo">NONSTOP</div>
       <div class="copyright">Copyright by Sebastian,T 2026</div>
     </div>
     <div class="top-actions">
+      <button class="icon-btn" onclick="openWelcomeScreen()">📜 Regeln</button>
       <button id="adultToggleBtn" class="icon-btn" onclick="cycleMode()">Standard</button>
       <button class="icon-btn" onclick="openSettings()">⚙️ Setup</button>
     </div>
@@ -712,9 +840,71 @@
     document.getElementById('specialIntervalSelect').value = specialInterval;
     document.getElementById('modeSelect').value = mode;
     document.getElementById('speechToggle').value = speechEnabled;
+    updateGreeting();
     updateModeUI();
     updateRoundBadge();
     resetTimerDisplay();
+
+    // --- TAGESZEIT-BEGRÜSSUNG & REGELN ---
+    function getGreetingByTime() {
+      const hour = new Date().getHours();
+      if (hour >= 5 && hour < 11) {
+        return "Guten Morgen";
+      } else if (hour >= 11 && hour < 18) {
+        return "Guten Tag";
+      } else {
+        return "Guten Abend";
+      }
+    }
+
+    function updateGreeting() {
+      const greeting = getGreetingByTime();
+      document.getElementById('greetingHeadline').textContent = `${greeting} und willkommen bei Nonstop!`;
+    }
+
+    function speakIntroRules() {
+      ensureAudio();
+      updateGreeting();
+      const greeting = getGreetingByTime();
+      const btn = document.getElementById('speakRulesBtn');
+      btn.textContent = "🗣️ Regeln werden vorgelesen...";
+      btn.classList.add('active');
+
+      const introQueue = [
+        `${greeting} und herzlich willkommen zu Nonstop!`,
+        "Hier sind die Spielregeln:",
+        "Jeder Spieler hat 10 Karten offen vor sich liegen.",
+        "Es gibt Joker, diese darf man als beliebigen Buchstaben nutzen.",
+        "Gewonnen hat der Spieler, der zuerst keine Karten mehr hat!",
+        "Drückt jetzt auf Spiel beginnen. Viel Spaß!"
+      ];
+
+      speakSequence(introQueue, () => {
+        btn.textContent = "🔊 Begrüßung & Regeln nochmal anhören";
+        btn.classList.remove('active');
+      });
+    }
+
+    function enterGame() {
+      ensureAudio();
+      activeSpeechId++;
+      clearInterval(speechPollInterval);
+      speechPollInterval = null;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      const btn = document.getElementById('speakRulesBtn');
+      btn.textContent = "🔊 Begrüßung & Regeln vorlesen";
+      btn.classList.remove('active');
+
+      document.getElementById('welcomeScreen').classList.add('hidden');
+    }
+
+    function openWelcomeScreen() {
+      stopAll(true);
+      updateGreeting();
+      document.getElementById('welcomeScreen').classList.remove('hidden');
+    }
 
     // --- WEB AUDIO API ---
     function ensureAudio() {
@@ -810,7 +1000,7 @@
         let hasStartedSpeaking = false;
         const startTime = Date.now();
         const totalChars = phrases.join(' ').length;
-        const maxHardTimeout = Math.max(4000, totalChars * 110 + 2500);
+        const maxHardTimeout = Math.max(4000, totalChars * 110 + 3000);
 
         speechPollInterval = setInterval(() => {
           if (myId !== activeSpeechId) {
@@ -901,7 +1091,6 @@
 
     function handleTimerCircleClick() {
       ensureAudio();
-      // Falls noch vorgelesen wird oder der Play-Button bereitsteht -> sofort Timer starten
       if (isReadyToStartTimer || speechPollInterval) {
         activeSpeechId++;
         clearInterval(speechPollInterval);
@@ -986,11 +1175,9 @@
           speechPollInterval = null;
           boxEl.classList.remove('speaking');
           mainBtn.classList.remove('speaking-state');
-          // Nach dem Vorlesen wird der Kreis zum Play-Button
           showReadyPlayButton();
         });
       } else {
-        // Ohne Sprachausgabe direkt den Play-Button anzeigen
         showReadyPlayButton();
       }
     }
